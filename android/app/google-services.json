@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "67980763839",
+    "project_id": "learning-firedart-usethis",
+    "storage_bucket": "learning-firedart-usethis.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:67980763839:android:6673c7e97652bae99d9c0a",
+        "android_client_info": {
+          "package_name": "com.example.learningdart"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyChR3s0Q7_MBIrcTgmMSnyyeHO1ITmmOns"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
