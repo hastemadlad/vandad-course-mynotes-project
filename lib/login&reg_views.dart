@@ -1,9 +1,13 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:learningdart/constants/routes.dart';
 import 'firebase_options.dart';
+import 'dart:developer' as devtools show log;
 
 //LOGINVIEW FOR THEM LOGINS
+//wearacidbd@gmail.com
+//password is waterdog123
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -70,18 +74,19 @@ class _LoginViewState extends State<LoginView> {
               final email = _email.text;
               final password = _password.text;
               try {
-                final userid = await FirebaseAuth.instance
-                    .signInWithEmailAndPassword(
-                      email: email,
-                      password: password,
-                    );
-                print(userid);
+                await FirebaseAuth.instance.signInWithEmailAndPassword(
+                  email: email,
+                  password: password,
+                );
+                Navigator.of(
+                  context,
+                ).pushNamedAndRemoveUntil(notesRoute, (route) => false);
               } on FirebaseAuthException catch (e) {
                 if (e.code == 'invalid-credential') {
-                  print("Aymaan found invalid credential");
+                  devtools.log("Aymaan found invalid credential");
                 } else {
-                  print("something else happened aymaan");
-                  print(e.code);
+                  devtools.log("something else happened aymaan");
+                  devtools.log(e.code);
                 }
               }
             },
@@ -91,7 +96,7 @@ class _LoginViewState extends State<LoginView> {
             onPressed: () {
               Navigator.of(
                 context,
-              ).pushNamedAndRemoveUntil('/Register/', (route) => false);
+              ).pushNamedAndRemoveUntil(registerRoute, (route) => false);
             },
             child: const Text('Go to Registration'),
           ),
@@ -181,12 +186,12 @@ class _RegisterViewState extends State<RegisterView> {
                       email: email,
                       password: password,
                     );
-                print(userid);
+                devtools.log(userid.toString());
               } on FirebaseAuthException catch (e) {
                 if (e.code == 'weak-password') {
-                  print("weak password my nigga");
+                  devtools.log("weak password my nigga");
                 } else {
-                  print(e.code);
+                  devtools.log(e.code);
                 }
               }
 
@@ -198,7 +203,7 @@ class _RegisterViewState extends State<RegisterView> {
             onPressed: () {
               Navigator.of(
                 context,
-              ).pushNamedAndRemoveUntil('/Login/', (route) => false);
+              ).pushNamedAndRemoveUntil(loginRoute, (route) => false);
             },
             child: const Text('Go to Login'),
           ),
