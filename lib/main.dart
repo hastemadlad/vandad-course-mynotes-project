@@ -22,6 +22,7 @@ void main() {
         loginRoute: (context) => const LoginView(),
         registerRoute: (context) => const RegisterView(),
         notesRoute: (context) => const NotesView(),
+        verifyEmailRoute: (context) => const EmailVerificationView(),
       },
     ),
   );
@@ -133,3 +134,5 @@ Future<bool> logoutDialogue(BuildContext context) {
     },
   ).then((value) => value ?? false);
 }
+
+//chap21 15:02

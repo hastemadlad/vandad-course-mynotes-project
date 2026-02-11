@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:learningdart/constants/routes.dart';
+import 'package:learningdart/utilities/errordialogue.dart';
 import 'firebase_options.dart';
 import 'dart:developer' as devtools show log;
 
@@ -78,17 +79,36 @@ class _LoginViewState extends State<LoginView> {
                   email: email,
                   password: password,
                 );
-                Navigator.of(
-                  context,
-                ).pushNamedAndRemoveUntil(notesRoute, (route) => false);
-              } on FirebaseAuthException catch (e) {
-                if (e.code == 'invalid-credential') {
-                  devtools.log("Aymaan found invalid credential");
+                final user = FirebaseAuth.instance.currentUser;
+                if (user?.emailVerified ?? false) {
+                  //ifverified what happens
+                  Navigator.of(
+                    context,
+                  ).pushNamedAndRemoveUntil(notesRoute, (route) => false);
                 } else {
-                  devtools.log("something else happened aymaan");
-                  devtools.log(e.code);
+                  //if not verified what happens
+                  Navigator.of(context).pushNamed(verifyEmailRoute);
                 }
+              } on FirebaseAuthException catch (e) {
+                if (e.code == 'wrong-password') {
+                  await showErrorDialog(
+                    context,
+                    "Aymaan found invalid credential",
+                  );
+                } else if (e.code == 'user-not-found') {
+                  await showErrorDialog(
+                    context,
+                    "No user found with that email",
+                  );
+                } else if (e.code == 'invalid-email') {
+                  await showErrorDialog(context, "Invalid email");
+                } else {
+                  await showErrorDialog(context, "Error: ${e.code}");
+                }
+              } catch (e) {
+                await showErrorDialog(context, "Error: ${e.toString()}");
               }
+              ;
             },
             child: const Text('Login'),
           ),
@@ -187,12 +207,17 @@ class _RegisterViewState extends State<RegisterView> {
                       password: password,
                     );
                 devtools.log(userid.toString());
+                Navigator.of(context).pushNamed(verifyEmailRoute);
+                final user = FirebaseAuth.instance.currentUser;
+                await user?.sendEmailVerification();
               } on FirebaseAuthException catch (e) {
                 if (e.code == 'weak-password') {
-                  devtools.log("weak password my nigga");
+                  await showErrorDialog(context, "Weak-Password");
                 } else {
-                  devtools.log(e.code);
+                  await showErrorDialog(context, "Error: ${e.code}");
                 }
+              } catch (e) {
+                await showErrorDialog(context, "Error: ${e.toString()}");
               }
 
               ///try catch
