@@ -1,13 +1,12 @@
-import 'dart:developer';
-
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:learningdart/firebase_options.dart';
+import 'package:learningdart/notes_view.dart';
+import 'package:learningdart/services/auth/auth_service.dart';
 import 'package:learningdart/verify_email_view.dart';
 import 'login&reg_views.dart';
 import 'dart:developer' as devtools show log;
 import 'package:learningdart/constants/routes.dart';
+import 'package:learningdart/services/auth/auth_service.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,15 +33,13 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      ),
+      future: AuthService.firebase().initialize(),
       builder: (context, snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.done:
-            final user = FirebaseAuth.instance.currentUser;
+            final user = AuthService.firebase().currentUser;
             if (user != null) {
-              if (user.emailVerified) {
+              if (user.isEmailVerified) {
                 return const NotesView();
               } else {
                 return const EmailVerificationView(); //Email Verification View does not have a scaffold Yet
@@ -60,79 +57,4 @@ class HomePage extends StatelessWidget {
   }
 }
 
-enum MenuAction { logout }
-
-class NotesView extends StatefulWidget {
-  const NotesView({super.key});
-
-  @override
-  State<NotesView> createState() => _NotesViewState();
-}
-
-class _NotesViewState extends State<NotesView> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 19, 19, 19),
-      appBar: AppBar(
-        title: const Text('Notes'),
-        actions: [
-          PopupMenuButton<MenuAction>(
-            onSelected: (whatWasSelected) async {
-              switch (whatWasSelected) {
-                case MenuAction.logout:
-                  final shouldLogout = await logoutDialogue(context);
-                  devtools.log(shouldLogout.toString());
-
-                  if (shouldLogout) {
-                    await FirebaseAuth.instance.signOut();
-                    Navigator.of(
-                      context,
-                    ).pushNamedAndRemoveUntil(loginRoute, (_) => false);
-                  }
-              }
-            },
-
-            itemBuilder: (context) {
-              return [
-                const PopupMenuItem(
-                  value: MenuAction.logout,
-                  child: Text("Logout"),
-                ),
-              ];
-            },
-          ),
-        ],
-        backgroundColor: Colors.amberAccent,
-      ),
-    );
-  }
-}
-
-Future<bool> logoutDialogue(BuildContext context) {
-  return showDialog(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        title: const Text("Logout?"),
-        content: const Text("Wanna logout baby girl?"),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(true);
-            },
-            child: const Text("Getout"),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(false);
-            },
-            child: const Text("Stay"),
-          ),
-        ],
-      );
-    },
-  ).then((value) => value ?? false);
-}
-
-//chap21 15:02
+//fixed not showing error on login with iasdjo

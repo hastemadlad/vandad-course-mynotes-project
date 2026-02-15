@@ -1,3 +1,6 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:learningdart/firebase_options.dart';
+
 import 'auth_user.dart';
 import 'auth_provider.dart';
 import 'auth_exceptions.dart';
@@ -64,7 +67,7 @@ class FirebaseAuthProvider implements AuthProvider {
       }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'wrong-password') {
-        throw WeakPasswordAuthException();
+        throw WrongPasswordAuthException();
       } else if (e.code == 'user-not-found') {
         throw UserNotFoundAuthException();
       } else if (e.code == 'invalid-email') {
@@ -101,5 +104,12 @@ class FirebaseAuthProvider implements AuthProvider {
     } else {
       throw UserNotLoggedInAuthException();
     }
+  }
+
+  @override
+  Future<void> initialize() async {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
   }
 }

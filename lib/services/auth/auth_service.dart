@@ -1,3 +1,5 @@
+import 'package:learningdart/services/auth/firebase_auth_provider.dart';
+
 import 'auth_provider.dart';
 import 'auth_user.dart';
 
@@ -6,27 +8,22 @@ class AuthService implements AuthProvider {
 
   const AuthService(this.provider);
 
+  factory AuthService.firebase() => AuthService(FirebaseAuthProvider());
+
   @override
-  Future<AuthUser> createUser({
-    required String email,
-    required String password,
-  }) => provider.currentUser(email: email, password: password);
+  Future<void> createUser({required String email, required String password}) =>
+      provider.createUser(email: email, password: password);
 
   @override
   // TODO: implement currentUser
-  AuthUser? get currentUser => throw UnimplementedError();
+  AuthUser? get currentUser => provider.currentUser;
 
   @override
-  Future<AuthUser> login({required String email, required String password}) {
-    // TODO: implement login
-    throw UnimplementedError();
-  }
+  Future<AuthUser> login({required String email, required String password}) =>
+      provider.login(email: email, password: password);
 
   @override
-  Future<void> logout() {
-    // TODO: implement logout
-    throw UnimplementedError();
-  }
+  Future<void> logout() => provider.logout();
 
   @override
   Future<AuthUser> register({required String email, required String password}) {
@@ -35,8 +32,8 @@ class AuthService implements AuthProvider {
   }
 
   @override
-  Future<void> sendEmailVerification() {
-    // TODO: implement sendEmailVerification
-    throw UnimplementedError();
-  }
+  Future<void> sendEmailVerification() => provider.sendEmailVerification();
+
+  @override
+  Future<void> initialize() => provider.initialize();
 }
