@@ -10,12 +10,16 @@ class AuthService implements AuthProvider {
 
   factory AuthService.firebase() => AuthService(FirebaseAuthProvider());
 
-  @override
+  //constructor AthService.Firebase can access the function below and when we call
+  //this it is accessing it. And the providor for this constructor is firebase.
+  //and when we are running the code the providor is be used. So we are running firebase
+  //code
+
+  @override //registering thats why register empty below
   Future<void> createUser({required String email, required String password}) =>
       provider.createUser(email: email, password: password);
 
   @override
-  // TODO: implement currentUser
   AuthUser? get currentUser => provider.currentUser;
 
   @override
@@ -27,7 +31,6 @@ class AuthService implements AuthProvider {
 
   @override
   Future<AuthUser> register({required String email, required String password}) {
-    // TODO: implement register
     throw UnimplementedError();
   }
 

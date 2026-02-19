@@ -6,7 +6,7 @@ import 'auth_provider.dart';
 import 'auth_exceptions.dart';
 
 import 'package:firebase_auth/firebase_auth.dart'
-    show FirebaseAuth, FirebaseAuthException, User;
+    show FirebaseAuth, FirebaseAuthException;
 
 class FirebaseAuthProvider implements AuthProvider {
   @override
@@ -14,7 +14,6 @@ class FirebaseAuthProvider implements AuthProvider {
     required String email,
     required String password,
   }) async {
-    // TODO: implement createUser
     try {
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email,
@@ -92,7 +91,6 @@ class FirebaseAuthProvider implements AuthProvider {
 
   @override
   Future<AuthUser> register({required String email, required String password}) {
-    // TODO: implement register
     throw UnimplementedError();
   }
 

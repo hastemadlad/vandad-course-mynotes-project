@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:learningdart/constants/routes.dart';
 import 'package:learningdart/enums/menu_action.dart';
 import 'package:learningdart/services/auth/auth_service.dart';
+import 'package:learningdart/services/crud/notes_service.dart';
 
 class NotesView extends StatefulWidget {
   const NotesView({super.key});
@@ -12,6 +13,24 @@ class NotesView extends StatefulWidget {
 }
 
 class _NotesViewState extends State<NotesView> {
+  late final NotesService _notesService;
+  String get userEmail => AuthService.firebase().currentUser!.email!;
+
+  @override
+  void initState() {
+    // TODO: What does override innit state mean
+    _notesService = NotesService();
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: What does ovverrride dispose mean
+    _notesService.close();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,6 +65,36 @@ class _NotesViewState extends State<NotesView> {
           ),
         ],
         backgroundColor: Colors.amberAccent,
+      ),
+      body: FutureBuilder(
+        future: _notesService.getOrCreateUser(email: userEmail),
+
+        //* snapshot is like the state of the Future or stream where u can have done, waiting, loading or somthing
+        //* as far I understand but I am not sure bout that
+        builder: (context, snapshot) {
+          //TODO what is ASYNC snapshot bro
+          switch (snapshot.connectionState) {
+            case ConnectionState.done:
+              return StreamBuilder(
+                stream: _notesService.allNotes,
+                builder: (context, snapshot) {
+                  switch (snapshot.connectionState) {
+                    case ConnectionState.waiting:
+                      return const Text(
+                        "watiting for notes........",
+                        style: TextStyle(
+                          color: Color.fromARGB(255, 211, 209, 202),
+                        ),
+                      );
+                    default:
+                      return CircularProgressIndicator();
+                  }
+                },
+              );
+            default:
+              return const CircularProgressIndicator();
+          }
+        },
       ),
     );
   }
