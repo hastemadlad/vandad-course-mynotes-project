@@ -48,10 +48,10 @@ class _NewNoteViewState extends State<NewNoteView> {
     if (existingNote != null) {
       return existingNote;
     }
-
     final currentUser = AuthService.firebase().currentUser!;
     final email = currentUser.email;
     final owner = await _notesService.getUser(email: email.toString());
+    //no need to get or create cuz in this creen we will always have a user
     return await _notesService.createNote(owner: owner);
   }
 
@@ -65,7 +65,7 @@ class _NewNoteViewState extends State<NewNoteView> {
   void _saveNoteIfTextNotEmpty() async {
     final note = _note;
     final text = _textEditingController.text;
-    if (note != null && text.isEmpty) {
+    if (note != null && text.isNotEmpty) {
       await _notesService.updateNote(note: note, text: text);
     }
   }
@@ -83,7 +83,6 @@ class _NewNoteViewState extends State<NewNoteView> {
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
-              _note = snapshot.data as DatabaseNote?;
               _setupListener();
               return TextField(
                 controller: _textEditingController,

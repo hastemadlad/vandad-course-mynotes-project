@@ -9,13 +9,18 @@ class NotesService {
   Database? _db;
 
   List<DatabaseNote> _notes = [];
-  static final NotesService _shared = NotesService._sharedInstance();
 
-  NotesService._sharedInstance();
+  static final NotesService _shared = NotesService._sharedInstance();
+  NotesService._sharedInstance() {
+    _notesStreamController = StreamController<List<DatabaseNote>>.broadcast(
+      onListen: () {
+        _notesStreamController.sink.add(_notes);
+      },
+    );
+  }
   factory NotesService() => _shared;
 
-  final _notesStreamController =
-      StreamController<List<DatabaseNote>>.broadcast();
+  late final StreamController<List<DatabaseNote>> _notesStreamController;
 
   Stream<List<DatabaseNote>> get allNotes => _notesStreamController.stream;
 
@@ -64,8 +69,9 @@ class NotesService {
   }
 
   Future<Iterable<DatabaseNote>> getAllNotes() async {
-    final db = _getDatabaseOrThrow();
     await _ensureDbIsOpen();
+    final db = _getDatabaseOrThrow();
+
     final notes = await db.query(noteTable);
 
     final result = notes.map((noteRow) => DatabaseNote.fromRow(noteRow));
@@ -73,8 +79,9 @@ class NotesService {
   }
 
   Future<DatabaseNote> getNote({required int id}) async {
-    final db = _getDatabaseOrThrow();
     await _ensureDbIsOpen();
+    final db = _getDatabaseOrThrow();
+
     final notes = await db.query(
       noteTable,
       limit: 1,
@@ -86,6 +93,7 @@ class NotesService {
     } else {
       final note = DatabaseNote.fromRow(notes.first);
       _notes.removeWhere((note) => note.id == id);
+      _notes.add(note);
       // TODO Study the list and list functions like .removeWhere and how we are using the (note) => note.id ==id
 
       _notesStreamController.add(_notes);
@@ -94,8 +102,9 @@ class NotesService {
   }
 
   Future<int> deleteAllNotes() async {
-    final db = _getDatabaseOrThrow();
     await _ensureDbIsOpen();
+    final db = _getDatabaseOrThrow();
+
     final numberOfDeletions = await db.delete(noteTable);
 
     _notes = [];
@@ -105,8 +114,9 @@ class NotesService {
   }
 
   Future<void> deleteNote({required int id}) async {
-    final db = _getDatabaseOrThrow();
     await _ensureDbIsOpen();
+    final db = _getDatabaseOrThrow();
+
     final deletedCount = await db.delete(
       noteTable,
       where: 'id= ?',
@@ -121,8 +131,8 @@ class NotesService {
   }
 
   Future<DatabaseNote> createNote({required DatabaseUser owner}) async {
-    final db = _getDatabaseOrThrow();
     await _ensureDbIsOpen();
+    final db = _getDatabaseOrThrow();
 
     final dbUser = await getUser(email: owner.email);
     if (dbUser != owner) {
@@ -151,8 +161,9 @@ class NotesService {
   }
 
   Future<DatabaseUser> getUser({required String email}) async {
-    final db = _getDatabaseOrThrow();
     await _ensureDbIsOpen();
+    final db = _getDatabaseOrThrow();
+
     final results = await db.query(
       userTable,
       limit: 1,
@@ -161,15 +172,16 @@ class NotesService {
     );
 
     if (results.isEmpty) {
-      throw CouldNotDeleteuserException();
+      throw CouldNotFinduserException();
     } else {
       return DatabaseUser.fromRow(results.first);
     }
   }
 
   Future<DatabaseUser> createUser({required String email}) async {
-    final db = _getDatabaseOrThrow();
     await _ensureDbIsOpen();
+    final db = _getDatabaseOrThrow();
+
     final results = await db.query(
       userTable,
       limit: 1,
@@ -188,8 +200,9 @@ class NotesService {
   }
 
   Future<void> deleteUser({required String email}) async {
-    final db = _getDatabaseOrThrow();
     await _ensureDbIsOpen();
+    final db = _getDatabaseOrThrow();
+
     final deletedCount = await db.delete(
       userTable,
       where: 'email = ?',
@@ -222,7 +235,9 @@ class NotesService {
   Future<void> _ensureDbIsOpen() async {
     try {
       await open();
-    } on DataBaseAlreadyOpenException {}
+    } on DataBaseAlreadyOpenException {
+      print('Database did not open');
+    }
   }
 
   Future<void> open() async {
@@ -233,10 +248,11 @@ class NotesService {
       final docsPath = await getApplicationDocumentsDirectory();
       final dbPath = join(docsPath.path, dbName);
       final db = await openDatabase(dbPath);
-      await _cacheNotes();
+
       _db = db;
 
       await db.execute(createUserTable);
+      await _cacheNotes();
     } on MissingPlatformDirectoryException {
       throw UnableToGetDocumentsDirectory();
     }
