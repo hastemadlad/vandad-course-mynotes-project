@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
@@ -44,7 +43,6 @@ class NotesService {
 
   Future<DatabaseNote> updateNote({
     required DatabaseNote note,
-
     required String text,
   }) async {
     await _ensureDbIsOpen();
@@ -52,10 +50,15 @@ class NotesService {
 
     await getNote(id: note.id);
 
-    final updatesCount = await db.update(noteTable, {
-      textColumn: text,
-      issynced: 0,
-    });
+    final updatesCount = await db.update(
+      noteTable,
+      {
+        textColumn: text,
+        issynced: 0,
+      },
+      where: 'id = ?',
+      whereArgs: [note.id],
+    );
 
     if (updatesCount == 0) {
       throw CouldNotUpdateNoteException();
@@ -94,8 +97,6 @@ class NotesService {
       final note = DatabaseNote.fromRow(notes.first);
       _notes.removeWhere((note) => note.id == id);
       _notes.add(note);
-      // TODO Study the list and list functions like .removeWhere and how we are using the (note) => note.id ==id
-
       _notesStreamController.add(_notes);
       return note;
     }
@@ -119,7 +120,7 @@ class NotesService {
 
     final deletedCount = await db.delete(
       noteTable,
-      where: 'id= ?',
+      where: 'id = ?',
       whereArgs: [id],
     );
     if (deletedCount == 0) {
@@ -167,7 +168,7 @@ class NotesService {
     final results = await db.query(
       userTable,
       limit: 1,
-      where: 'email= ?',
+      where: 'email = ?',
       whereArgs: [email.toLowerCase()],
     );
 
@@ -185,7 +186,7 @@ class NotesService {
     final results = await db.query(
       userTable,
       limit: 1,
-      where: 'email= ?',
+      where: 'email = ?',
       whereArgs: [email.toLowerCase()],
     );
     if (results.isNotEmpty) {
@@ -236,7 +237,7 @@ class NotesService {
     try {
       await open();
     } on DataBaseAlreadyOpenException {
-      print('Database did not open');
+      // database is already open
     }
   }
 
@@ -252,6 +253,7 @@ class NotesService {
       _db = db;
 
       await db.execute(createUserTable);
+      await db.execute(createNoteTable);
       await _cacheNotes();
     } on MissingPlatformDirectoryException {
       throw UnableToGetDocumentsDirectory();
@@ -266,9 +268,9 @@ class DatabaseUser {
   const DatabaseUser({required this.id, required this.email});
 
   DatabaseUser.fromRow(Map<String, Object?> map)
-    : id = map[idColumn] as int,
-      email = map[emailColumn] as String;
-  //TODO Learn the Overrides here and Learn what ar they doing
+      : id = map[idColumn] as int,
+        email = map[emailColumn] as String;
+
   @override
   String toString() => 'Person, ID = $id email = $email';
 
@@ -293,10 +295,10 @@ class DatabaseNote {
   });
 
   DatabaseNote.fromRow(Map<String, Object?> map)
-    : id = map[idColumn] as int,
-      userId = map[userIdColumn] as int,
-      text = map[textColumn] as String,
-      Sync = (map[issynced] as int) == 1 ? true : false;
+      : id = map[idColumn] as int,
+        userId = map[userIdColumn] as int,
+        text = map[textColumn] as String,
+        Sync = (map[issynced] as int) == 1;
 
   @override
   String toString() =>
@@ -316,19 +318,19 @@ const idColumn = 'id';
 const emailColumn = 'email';
 const userIdColumn = 'user_id';
 const textColumn = 'text';
-const issynced = 'is it synced with cloud';
+const issynced = 'sync';
+
 const createUserTable = ''' CREATE TABLE IF NOT EXISTS "user" (
-	"id"	INTEGER NOT NULL,
-	"email"	TEXT NOT NULL UNIQUE,
-	PRIMARY KEY("id" AUTOINCREMENT)
-);
-      ''';
+  "id" INTEGER NOT NULL,
+  "email" TEXT NOT NULL UNIQUE,
+  PRIMARY KEY("id" AUTOINCREMENT)
+); ''';
 
 const createNoteTable = ''' CREATE TABLE IF NOT EXISTS "note" (
-	"user_id"	INTEGER NOT NULL,
-	"id"	INTEGER NOT NULL,
-	"text"	TEXT,
-	"sync"	INTEGER NOT NULL DEFAULT 0,
-	PRIMARY KEY("id" AUTOINCREMENT),
-	FOREIGN KEY("user_id") REFERENCES "user"("id")
+  "user_id" INTEGER NOT NULL,
+  "id" INTEGER NOT NULL,
+  "text" TEXT,
+  "sync" INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY("id" AUTOINCREMENT),
+  FOREIGN KEY("user_id") REFERENCES "user"("id")
 ); ''';

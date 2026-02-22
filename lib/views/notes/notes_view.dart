@@ -1,5 +1,4 @@
 import 'dart:developer' as devtools;
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:learningdart/constants/routes.dart';
 import 'package:learningdart/enums/menu_action.dart';
@@ -19,16 +18,14 @@ class _NotesViewState extends State<NotesView> {
 
   @override
   void initState() {
-    // TODO: What does override innit state mean
     _notesService = NotesService();
-
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 201, 201, 201),
+      backgroundColor: const Color.fromARGB(255, 19, 19, 19),
       appBar: AppBar(
         title: const Text('Notes'),
         actions: [
@@ -53,12 +50,11 @@ class _NotesViewState extends State<NotesView> {
                   }
               }
             },
-
             itemBuilder: (context) {
               return [
                 const PopupMenuItem(
                   value: MenuAction.logout,
-                  child: Text("Logout"),
+                  child: Text('Logout'),
                 ),
               ];
             },
@@ -66,40 +62,51 @@ class _NotesViewState extends State<NotesView> {
         ],
         backgroundColor: Colors.amberAccent,
       ),
-      body: FutureBuilder(
+      body: FutureBuilder<DatabaseUser>(
         future: _notesService.getOrCreateUser(email: userEmail),
-
-        //* snapshot is like the state of the Future or stream where u can have done, waiting, loading or somthing
-        //* as far I understand but I am not sure bout that
-        builder: (context, snapshot) {
-          switch (snapshot.connectionState) {
+        builder: (context, userSnapshot) {
+          switch (userSnapshot.connectionState) {
             case ConnectionState.done:
-              return StreamBuilder(
+              final dbUser = userSnapshot.data;
+              if (dbUser == null) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              return StreamBuilder<List<DatabaseNote>>(
                 stream: _notesService.allNotes,
-                builder: (context, snapshot) {
-                  switch (snapshot.connectionState) {
-                    case ConnectionState.waiting:
-                    case ConnectionState.active:
-                      if (snapshot.hasData) {
-                        final allNotes = snapshot.data as List<DatabaseNote>;
-
-                        return ListView.builder(
-                          itemCount: allNotes.length,
-
-                          itemBuilder: (context, index) {
-                            return const Text('items');
-                          },
-                        );
-                      } else {
-                        return const CircularProgressIndicator();
-                      }
-                    default:
-                      return CircularProgressIndicator();
+                builder: (context, notesSnapshot) {
+                  if (!notesSnapshot.hasData) {
+                    return const Center(child: CircularProgressIndicator());
                   }
+
+                  final allNotes = notesSnapshot.data!
+                      .where((note) => note.userId == dbUser.id)
+                      .toList();
+
+                  if (allNotes.isEmpty) {
+                    return const Center(child: Text('No notes yet'));
+                  }
+
+                  return ListView.builder(
+                    itemCount: allNotes.length,
+                    itemBuilder: (context, index) {
+                      final note = allNotes[index];
+                      return ListTile(
+                        title: Text(
+                          note.text.isEmpty ? '(empty note)' : note.text,
+                          style: TextStyle(
+                            color: const Color.fromARGB(255, 223, 218, 200),
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      );
+                    },
+                  );
                 },
               );
             default:
-              return const CircularProgressIndicator();
+              return const Center(child: CircularProgressIndicator());
           }
         },
       ),
@@ -112,20 +119,20 @@ Future<bool> logoutDialogue(BuildContext context) {
     context: context,
     builder: (context) {
       return AlertDialog(
-        title: const Text("Logout?"),
-        content: const Text("Wanna logout baby girl?"),
+        title: const Text('Logout?'),
+        content: const Text('Wanna logout baby girl?'),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.of(context).pop(true);
             },
-            child: const Text("Getout"),
+            child: const Text('Getout'),
           ),
           TextButton(
             onPressed: () {
               Navigator.of(context).pop(false);
             },
-            child: const Text("Stay"),
+            child: const Text('Stay'),
           ),
         ],
       );

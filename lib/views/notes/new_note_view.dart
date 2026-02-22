@@ -48,10 +48,10 @@ class _NewNoteViewState extends State<NewNoteView> {
     if (existingNote != null) {
       return existingNote;
     }
+
     final currentUser = AuthService.firebase().currentUser!;
-    final email = currentUser.email;
-    final owner = await _notesService.getUser(email: email.toString());
-    //no need to get or create cuz in this creen we will always have a user
+    final email = currentUser.email!;
+    final owner = await _notesService.getOrCreateUser(email: email);
     return await _notesService.createNote(owner: owner);
   }
 
@@ -78,29 +78,35 @@ class _NewNoteViewState extends State<NewNoteView> {
         title: const Text('New Note'),
         backgroundColor: Colors.amberAccent,
       ),
-      body: FutureBuilder(
+      body: FutureBuilder<DatabaseNote>(
         future: createNewNote(),
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
+              final note = snapshot.data;
+              if (note == null) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              _note = note;
               _setupListener();
+
               return TextField(
                 controller: _textEditingController,
                 keyboardType: TextInputType.multiline,
                 maxLines: null,
-                style: TextStyle(
-                  color: const Color.fromARGB(255, 236, 216, 216),
+                style: const TextStyle(
+                  color: Color.fromARGB(255, 236, 216, 216),
                 ),
                 decoration: const InputDecoration(
                   hintText: 'Type here',
                   hintStyle: TextStyle(
-                    color: const Color.fromARGB(255, 236, 216, 216),
+                    color: Color.fromARGB(255, 236, 216, 216),
                   ),
                 ),
               );
-
             default:
-              return const CircularProgressIndicator();
+              return const Center(child: CircularProgressIndicator());
           }
         },
       ),
