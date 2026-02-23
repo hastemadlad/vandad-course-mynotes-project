@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:learningdart/constants/routes.dart';
 import 'package:learningdart/services/auth/auth_exceptions.dart';
 import 'package:learningdart/services/auth/auth_service.dart';
-import 'package:learningdart/utilities/errordialogue.dart';
+import 'package:learningdart/utilities/dialog/error_dialog.dart';
 import 'dart:developer' as devtools show log;
 
 //LOGINVIEW FOR THEM LOGINS

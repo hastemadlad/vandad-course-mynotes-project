@@ -52,10 +52,7 @@ class NotesService {
 
     final updatesCount = await db.update(
       noteTable,
-      {
-        textColumn: text,
-        issynced: 0,
-      },
+      {textColumn: text, issynced: 0},
       where: 'id = ?',
       whereArgs: [note.id],
     );
@@ -268,8 +265,8 @@ class DatabaseUser {
   const DatabaseUser({required this.id, required this.email});
 
   DatabaseUser.fromRow(Map<String, Object?> map)
-      : id = map[idColumn] as int,
-        email = map[emailColumn] as String;
+    : id = map[idColumn] as int,
+      email = map[emailColumn] as String;
 
   @override
   String toString() => 'Person, ID = $id email = $email';
@@ -295,10 +292,10 @@ class DatabaseNote {
   });
 
   DatabaseNote.fromRow(Map<String, Object?> map)
-      : id = map[idColumn] as int,
-        userId = map[userIdColumn] as int,
-        text = map[textColumn] as String,
-        Sync = (map[issynced] as int) == 1;
+    : id = map[idColumn] as int,
+      userId = map[userIdColumn] as int,
+      text = map[textColumn] as String,
+      Sync = (map[issynced] as int) == 1;
 
   @override
   String toString() =>
