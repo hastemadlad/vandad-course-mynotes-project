@@ -2,14 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:learningdart/services/crud/notes_service.dart';
 import 'package:learningdart/utilities/dialog/delete_dialog.dart';
 
-typedef DeleteNoteCallBack = void Function(DatabaseNote note);
+typedef NoteCallBack = void Function(DatabaseNote note);
 //This is creating a function called DeleteNoteCallBack that is taking a DatabaseNote type object and returning void/nothing
 
 class NotesListView extends StatelessWidget {
   final List<DatabaseNote> notes;
-  final DeleteNoteCallBack onDeletenote;
+  final NoteCallBack onDeletenote;
+  final NoteCallBack onTap;
 
-  const NotesListView({required this.notes, required this.onDeletenote});
+  const NotesListView({
+    super.key,
+    required this.notes,
+    required this.onDeletenote,
+    required this.onTap,
+  });
+
+  //! a bit different for vandad ^^^ super.key chapter 34 min 24:11
 
   @override
   Widget build(BuildContext context) {
@@ -18,6 +26,9 @@ class NotesListView extends StatelessWidget {
       itemBuilder: (context, index) {
         final note = notes[index];
         return ListTile(
+          onTap: () {
+            onTap(note);
+          },
           title: Text(
             note.text.isEmpty ? '(empty note)' : note.text,
             style: TextStyle(color: const Color.fromARGB(255, 223, 218, 200)),

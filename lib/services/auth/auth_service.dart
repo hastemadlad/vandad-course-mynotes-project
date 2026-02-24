@@ -16,7 +16,10 @@ class AuthService implements AuthProvider {
   //code
 
   @override //registering thats why register empty below
-  Future<void> createUser({required String email, required String password}) =>
+  Future<AuthUser> createUser({
+    required String email,
+    required String password,
+  }) =>
       provider.createUser(email: email, password: password);
 
   @override
@@ -30,9 +33,8 @@ class AuthService implements AuthProvider {
   Future<void> logout() => provider.logout();
 
   @override
-  Future<AuthUser> register({required String email, required String password}) {
-    throw UnimplementedError();
-  }
+  Future<AuthUser> register({required String email, required String password}) =>
+      provider.register(email: email, password: password);
 
   @override
   Future<void> sendEmailVerification() => provider.sendEmailVerification();

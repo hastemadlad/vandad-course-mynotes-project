@@ -94,6 +94,8 @@ class _LoginViewState extends State<LoginView> {
                 await showErrorDialog(context, 'user not found');
               } on WrongPasswordAuthException {
                 await showErrorDialog(context, 'areh bhai bhul password diso');
+              } on InvalidCredentialAuthException {
+                await showErrorDialog(context, 'Invalid login credentials');
               } on InvalidEmailAuthException {
                 await showErrorDialog(context, 'Invalid Email');
               } on GenericAuthException {
@@ -191,14 +193,13 @@ class _RegisterViewState extends State<RegisterView> {
               final email = _email.text;
               final password = _password.text;
               try {
-                final userid = await AuthService.firebase().createUser(
+                await AuthService.firebase().createUser(
                   email: email,
                   password: password,
                 );
 
-                Navigator.of(context).pushNamed(verifyEmailRoute);
-                final user = AuthService.firebase().currentUser;
                 await AuthService.firebase().sendEmailVerification();
+                Navigator.of(context).pushNamed(verifyEmailRoute);
               } on WeakPasswordAuthException {
                 await showErrorDialog(context, "Weak-Password");
               } on EmailAlreadyInUseAuthException {

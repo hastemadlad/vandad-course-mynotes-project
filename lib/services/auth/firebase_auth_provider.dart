@@ -28,6 +28,8 @@ class FirebaseAuthProvider implements AuthProvider {
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         throw WeakPasswordAuthException();
+      } else if (e.code == 'email-already-in-use') {
+        throw EmailAlreadyInUseAuthException();
       } else if (e.code == 'invalid-email') {
         throw InvalidEmailAuthException();
       } else {
@@ -67,6 +69,9 @@ class FirebaseAuthProvider implements AuthProvider {
     } on FirebaseAuthException catch (e) {
       if (e.code == 'wrong-password') {
         throw WrongPasswordAuthException();
+      } else if (e.code == 'invalid-credential' ||
+          e.code == 'invalid-login-credentials') {
+        throw InvalidCredentialAuthException();
       } else if (e.code == 'user-not-found') {
         throw UserNotFoundAuthException();
       } else if (e.code == 'invalid-email') {
@@ -91,7 +96,7 @@ class FirebaseAuthProvider implements AuthProvider {
 
   @override
   Future<AuthUser> register({required String email, required String password}) {
-    throw UnimplementedError();
+    return createUser(email: email, password: password);
   }
 
   @override
