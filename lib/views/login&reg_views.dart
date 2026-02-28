@@ -21,7 +21,6 @@ class LoginView extends StatefulWidget {
 class _LoginViewState extends State<LoginView> {
   late final TextEditingController _email;
   late final TextEditingController _password;
-  CloseDialog? _closeDialogHandle;
 
   @override
   void initState() {
@@ -41,28 +40,8 @@ class _LoginViewState extends State<LoginView> {
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) async {
-        final closeDialog = _closeDialogHandle;
-        if (state is AuthStateLoggedOut && state.isLoading) {
-          if (closeDialog == null) {
-            _closeDialogHandle = showLoadingDialog(
-              context: context,
-              text: 'Loading...',
-            );
-          }
-          return;
-        }
-
-        if (closeDialog != null) {
-          closeDialog();
-          _closeDialogHandle = null;
-        }
-
         if (state is AuthStateLoggedOut) {
           final exception = state.exception;
-          if (exception == null) {
-            return;
-          }
-
           if (exception is UserNotFoundAuthException) {
             await showErrorDialog(context, 'User not found');
           } else if (exception is WrongPasswordAuthException) {
@@ -72,9 +51,10 @@ class _LoginViewState extends State<LoginView> {
           } else if (exception is InvalidEmailAuthException) {
             await showErrorDialog(context, 'Invalid email');
           } else if (exception is GenericAuthException) {
-            await showErrorDialog(context, 'Authentication error');
-          } else {
-            await showErrorDialog(context, 'Unexpected authentication error');
+            await showErrorDialog(
+              context,
+              'Unprecedented Authentication error',
+            );
           }
         }
       },
