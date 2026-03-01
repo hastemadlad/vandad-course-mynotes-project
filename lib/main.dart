@@ -1,4 +1,3 @@
-import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:learningdart/helpers/loading/loading_screen.dart';
@@ -6,6 +5,7 @@ import 'package:learningdart/services/auth/bloc/auth_bloc.dart';
 import 'package:learningdart/services/auth/bloc/auth_event.dart';
 import 'package:learningdart/services/auth/bloc/auth_state.dart';
 import 'package:learningdart/services/auth/firebase_auth_provider.dart';
+import 'package:learningdart/views/forgot_password_view.dart';
 import 'package:learningdart/views/notes/create_update_note_view.dart';
 import 'package:learningdart/views/notes/notes_view.dart';
 import 'package:learningdart/views/verify_email_view.dart';
@@ -18,6 +18,19 @@ void main() {
     MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
+        scaffoldBackgroundColor: const Color.fromARGB(255, 19, 19, 19),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.amberAccent,
+          foregroundColor: Color.fromARGB(255, 0, 0, 0),
+        ),
+        textTheme: const TextTheme(
+          bodyMedium: TextStyle(color: Color.fromARGB(255, 236, 216, 216)),
+          bodyLarge: TextStyle(color: Color.fromARGB(255, 236, 216, 216)),
+        ),
+        inputDecorationTheme: const InputDecorationTheme(
+          hintStyle: TextStyle(color: Color.fromARGB(255, 173, 171, 163)),
+        ),
+
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
       home: BlocProvider<AuthBloc>(
@@ -58,6 +71,8 @@ class HomePage extends StatelessWidget {
           return const LoginView();
         } else if (state is AuthStateRegistering) {
           return const RegisterView();
+        } else if (state is AuthStateForgotPassword) {
+          return const ForgotPasswordView();
         } else {
           return Scaffold(body: CircularProgressIndicator());
         }

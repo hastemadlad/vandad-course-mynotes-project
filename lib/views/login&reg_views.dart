@@ -5,7 +5,6 @@ import 'package:learningdart/services/auth/bloc/auth_bloc.dart';
 import 'package:learningdart/services/auth/bloc/auth_event.dart';
 import 'package:learningdart/services/auth/bloc/auth_state.dart';
 import 'package:learningdart/utilities/dialog/error_dialog.dart';
-import 'package:learningdart/utilities/dialog/loading_dialog.dart';
 
 //LOGINVIEW FOR THEM LOGINS
 //wearacidbd@gmail.com
@@ -59,54 +58,57 @@ class _LoginViewState extends State<LoginView> {
         }
       },
       child: Scaffold(
-        backgroundColor: const Color.fromARGB(255, 19, 19, 19),
-        appBar: AppBar(
-          title: const Text('Login'),
-          backgroundColor: Colors.amberAccent,
-        ),
-        body: Column(
-          children: [
-            TextField(
-              style: TextStyle(color: const Color.fromARGB(255, 236, 216, 216)),
-              controller: _email,
-              autocorrect: false,
-              keyboardType: TextInputType.emailAddress,
-              decoration: InputDecoration(
-                hintText: 'Enter your email babygirl',
-                hintStyle: TextStyle(
-                  color: const Color.fromARGB(255, 173, 171, 163),
+        appBar: AppBar(title: const Text('Login')),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              TextField(
+                style: TextStyle(
+                  color: const Color.fromARGB(255, 236, 216, 216),
+                ),
+                controller: _email,
+                autocorrect: false,
+                keyboardType: TextInputType.emailAddress,
+                decoration: InputDecoration(
+                  hintText: 'Enter your email babygirl',
                 ),
               ),
-            ),
-            TextField(
-              controller: _password,
-              style: TextStyle(color: const Color.fromARGB(255, 236, 216, 216)),
-              obscureText: true,
-              enableSuggestions: false,
-              autocorrect: false,
-              decoration: InputDecoration(
-                hintText:
-                    'Enter your password which I will not encrypt confirm',
-                hintStyle: TextStyle(
-                  color: const Color.fromARGB(255, 173, 171, 163),
+
+              TextField(
+                controller: _password,
+
+                obscureText: true,
+                enableSuggestions: false,
+                autocorrect: false,
+                decoration: InputDecoration(
+                  hintText:
+                      'Enter your password which I will not encrypt confirm',
                 ),
               ),
-            ),
-            TextButton(
-              onPressed: () async {
-                final email = _email.text;
-                final password = _password.text;
-                context.read<AuthBloc>().add(AuthEventLogin(email, password));
-              },
-              child: const Text('Login'),
-            ),
-            TextButton(
-              onPressed: () {
-                context.read<AuthBloc>().add(const AuthEventShouldRegister());
-              },
-              child: const Text('Go to Registration'),
-            ),
-          ],
+
+              TextButton(
+                onPressed: () async {
+                  final email = _email.text;
+                  final password = _password.text;
+                  context.read<AuthBloc>().add(AuthEventLogin(email, password));
+                },
+                child: const Text('Login'),
+              ),
+              TextButton(
+                onPressed: () {
+                  context.read<AuthBloc>().add(const AuthEventShouldRegister());
+                },
+                child: const Text('Go to Registration'),
+              ),
+              TextButton(
+                onPressed: () {
+                  context.read<AuthBloc>().add(const AuthEventForgotPassword());
+                },
+                child: const Text('Forgot Password?'),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -165,56 +167,52 @@ class _RegisterViewState extends State<RegisterView> {
         }
       },
       child: Scaffold(
-        backgroundColor: const Color.fromARGB(255, 19, 19, 19),
-        appBar: AppBar(
-          title: const Text('Register'),
-          backgroundColor: Colors.amberAccent,
-        ),
-        body: Column(
-          children: [
-            TextField(
-              controller: _email,
-              style: TextStyle(color: const Color.fromARGB(255, 236, 216, 216)),
-              autocorrect: false,
-              keyboardType: TextInputType.emailAddress,
-              decoration: InputDecoration(
-                hintText: 'Enter your email babygirl',
-                hintStyle: TextStyle(
-                  color: const Color.fromARGB(255, 173, 171, 163),
+        appBar: AppBar(title: const Text('Register')),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              TextField(
+                controller: _email,
+                enableSuggestions: false,
+                autofocus: true,
+                autocorrect: false,
+                keyboardType: TextInputType.emailAddress,
+                decoration: InputDecoration(
+                  hintText: 'Enter your email babygirl',
                 ),
               ),
-            ),
-            TextField(
-              controller: _password,
-              obscureText: true,
-              style: TextStyle(color: const Color.fromARGB(255, 236, 216, 216)),
-              enableSuggestions: false,
-              autocorrect: false,
-              decoration: InputDecoration(
-                hintText:
-                    'Enter your password which I will not encrypt confirm',
-                hintStyle: TextStyle(
-                  color: const Color.fromARGB(255, 173, 171, 163),
+
+              TextField(
+                controller: _password,
+                obscureText: true,
+
+                enableSuggestions: false,
+                autocorrect: false,
+                decoration: InputDecoration(
+                  hintText:
+                      'Enter your password which I will not encrypt confirm',
                 ),
               ),
-            ),
-            TextButton(
-              onPressed: () async {
-                final email = _email.text;
-                final password = _password.text;
-                context.read<AuthBloc>().add(
-                  AuthEventRegister(email, password),
-                );
-              },
-              child: const Text('Register'),
-            ),
-            TextButton(
-              onPressed: () {
-                context.read<AuthBloc>().add(const AuthEventLogOut());
-              },
-              child: const Text('Go to Login'),
-            ),
-          ],
+
+              TextButton(
+                onPressed: () async {
+                  final email = _email.text;
+                  final password = _password.text;
+                  context.read<AuthBloc>().add(
+                    AuthEventRegister(email, password),
+                  );
+                },
+                child: const Text('Register'),
+              ),
+              TextButton(
+                onPressed: () {
+                  context.read<AuthBloc>().add(const AuthEventLogOut());
+                },
+                child: const Text('Go to Login'),
+              ),
+            ],
+          ),
         ),
       ),
     );
